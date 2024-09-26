@@ -69,6 +69,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
 
     return (
       <>
+        
         <div className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-y-2">
