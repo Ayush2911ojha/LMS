@@ -11,6 +11,8 @@ const mux = new Mux({
 });
 
 const video = mux.video;
+
+
 export async function DELETE(
   req: Request,
   { params }: { params: { courseId: string; chapterId: string } }
@@ -53,7 +55,7 @@ export async function DELETE(
 
       if (existingMuxData) {
         try {
-          await deleteMuxAsset(existingMuxData.assetId); // Call the function to delete the asset
+          await deleteMuxAsset(existingMuxData.assetId); 
         } catch (error) {
           console.log("[Mux Asset Delete]", error);
         }
