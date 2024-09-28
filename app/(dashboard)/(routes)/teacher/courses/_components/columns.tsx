@@ -21,9 +21,9 @@ export const columns: ColumnDef<Course>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="text-gray-800 hover:text-blue-600"
+        className="text-blue-600 hover:text-blue-800" // Changed color to blue
       >
-        Title
+        Course Title
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
@@ -68,7 +68,7 @@ export const columns: ColumnDef<Course>[] = [
         <Badge
           className={cn(
             "text-white py-1 px-2 rounded-md",
-            isPublished ? "bg-green-500" : "bg-red-500"
+            isPublished ? "bg-blue-500" : "bg-yellow-500"
           )}
         >
           {isPublished ? "Published" : "Draft"}

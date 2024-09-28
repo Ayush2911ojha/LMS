@@ -8,17 +8,18 @@ async function main() {
 
         await database.category.createMany({
             data: [
-                { name: " Computer Science" },
-                { name: " Music Science" },
-                { name: " Fitness " },
-                { name: " Photography " },
-                { name: " Accountent " },
-                { name: "  engineering " },
-                {name: " Filming"},
+                { name: "Computer Science" },  // No extra spaces
+                { name: "Music" },
+                { name: "Fitness" },
+                { name: "Photography" },
+                { name: "Accounting" },  // Correct spelling
+                { name: "Engineering" },
+                { name: "Filming" },
             ]
         })
         console.log("succes");
     }
+    
     catch(error) {
         console.log("Error seeding db Category", error);
 
