@@ -6,6 +6,7 @@ html,
 body,
 :root {
   height: 100%;
+  font-size: 0.800rem; /* Scale everything down to 14px */
 }
  
 @layer base {
@@ -38,7 +39,7 @@ body,
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
  
-    --radius: 0.5rem;
+    --radius: 0.5rem; /* Adjust if needed */
   }
  
   .dark {
@@ -82,10 +83,10 @@ body,
 }
 
 .ql-container {
-  font-size: 16px !important;
-}
-.ql-container {
-  font-size: 16px !important;
+  font-size: 1rem !important; /* Adjust to a responsive size */
 }
 
-@import "~@uploadthing/react/styles.css"
+/* Any additional specific component adjustments can go here */
+
+/* Importing UploadThing styles */
+@import "~@uploadthing/react/styles.css";

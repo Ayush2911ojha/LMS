@@ -14,6 +14,7 @@ interface CourseCardProps {
   price: number;
   progress: number | null;
   category: string;
+  description: string;
 }
 
 export const CourseCard = ({
@@ -23,7 +24,8 @@ export const CourseCard = ({
   chaptersLength,
   price,
   progress,
-  category
+  category,
+  description,
 }: CourseCardProps) => {
   return (
     <div className="p-4 transition-transform transform hover:scale-105">
@@ -64,6 +66,12 @@ export const CourseCard = ({
                 </span>
               </div>
             )}
+            <div className="flex flex-col mt-2">
+              <h2 className="font-semibold text-gray-900">Description</h2>
+              <p className="text-gray-600 text-sm line-clamp-2 overflow-hidden">
+                {description.split(' ').slice(0, 15).join(' ') + (description.split(' ').length > 15 ? '...' : '')}
+              </p>
+            </div>
             <button className="mt-4 bg-gradient-to-r from-sky-400 to-sky-600 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-gradient-to-l transition duration-200 transform hover:-translate-y-0.5">
               Enroll Now
             </button>
@@ -72,4 +80,6 @@ export const CourseCard = ({
       </Link>
     </div>
   );
+  
+  
 };
