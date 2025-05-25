@@ -72,15 +72,21 @@ export const CourseCard = ({
                 {description.split(' ').slice(0, 6).join(' ') + (description.split(' ').length > 6 ? '...' : '')}
               </p>
             </div>
-            {progress === null ? (
-              <button className="mt-4 bg-gradient-to-r from-sky-400 to-sky-600 text-white font-bold text-base py-2 px-4 rounded-lg shadow-lg hover:bg-gradient-to-l transition duration-300 transform hover:-translate-y-0.5 hover:shadow-xl">
-                Enroll Now
-              </button>
-            ) : (
-              <button className="mt-4 bg-gradient-to-r from-teal-400 to-teal-600 text-white font-bold text-base py-2 px-4 rounded-lg shadow-lg hover:bg-gradient-to-l transition duration-300 transform hover:-translate-y-0.5 hover:shadow-xl">
-                Continue Learning
-              </button>
-            )}
+{progress === null ? (
+  <button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base py-2 px-4 rounded-lg shadow-md transition">
+    Enroll Now
+  </button>
+) : progress === 100 ? (
+  <button disabled className="mt-4 bg-emerald-500 text-white font-semibold text-base py-2 px-4 rounded-lg shadow-md opacity-90 ">
+    🎉 Completed
+  </button>
+) : (
+  <button className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-base py-2 px-4 rounded-lg shadow-md transition">
+    Continue Learning
+  </button>
+)}
+
+
           </div>
         </div>
       </Link>
