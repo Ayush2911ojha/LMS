@@ -41,14 +41,14 @@ export const CourseCard = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-50"></div>
           </div>
           <div className="flex flex-col p-4">
-            <h3 className="text-2xl font-extrabold text-gray-900 group-hover:text-sky-600 transition duration-150">
+            <h3 className="text-2xl font-extrabold text-gray-900 group-hover:text-blue-600 transition duration-150">
               {title}
             </h3>
-            <p className="text-sm text-gray-600 mb-1">{category}</p>
+            <p className="text-sm text-blue-500 mb-1">{category}</p>
             <div className="flex items-center gap-x-2 mb-2">
               <div className="flex items-center gap-x-1">
                 <IconBadge size="sm" icon={BookOpen} />
-                <span className="bg-sky-500 text-white px-2 py-1 text-xs font-medium rounded-full shadow-md">
+                <span className="bg-blue-400 text-white px-2 py-1 text-xs font-medium rounded-full shadow-md">
                   {chaptersLength} {chaptersLength === 1 ? "Chapter" : "Chapters"}
                 </span>
               </div>
@@ -72,14 +72,18 @@ export const CourseCard = ({
                 {description.split(' ').slice(0, 6).join(' ') + (description.split(' ').length > 6 ? '...' : '')}
               </p>
             </div>
-            <button className="mt-4 bg-gradient-to-r from-sky-400 to-sky-600 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-gradient-to-l transition duration-200 transform hover:-translate-y-0.5">
-              Enroll Now
-            </button>
+            {progress === null ? (
+              <button className="mt-4 bg-gradient-to-r from-sky-400 to-sky-600 text-white font-bold text-base py-2 px-4 rounded-lg shadow-lg hover:bg-gradient-to-l transition duration-300 transform hover:-translate-y-0.5 hover:shadow-xl">
+                Enroll Now
+              </button>
+            ) : (
+              <button className="mt-4 bg-gradient-to-r from-teal-400 to-teal-600 text-white font-bold text-base py-2 px-4 rounded-lg shadow-lg hover:bg-gradient-to-l transition duration-300 transform hover:-translate-y-0.5 hover:shadow-xl">
+                Continue Learning
+              </button>
+            )}
           </div>
         </div>
       </Link>
     </div>
   );
-  
-  
 };
