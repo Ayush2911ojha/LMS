@@ -17,7 +17,11 @@ This is a full-stack Learning Management System (LMS) built with **Next.js 13**,
 - 🌐 Fully deployed (coming soon)
 
 ---
+## 🌐 Live Demo
 
+🔗 [https://lms-s8x4.vercel.app](https://lms-s8x4.vercel.app)
+
+---
 ### 🧩 Tech Stack
 
 | Category       | Tech Used                     |
