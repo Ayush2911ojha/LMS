@@ -6,14 +6,15 @@ type PurchaseWithCourse = Purchase & {
 };
 
 const groupByCourse = (purchases: PurchaseWithCourse[]) => {
-  const grouped: { [courseTitle: string]: number } = {};
+  const grouped: { [courseTitle: string]: { totalRevenue: number; students: number } } = {};
   
   purchases.forEach((purchase) => {
     const courseTitle = purchase.course.title;
     if (!grouped[courseTitle]) {
-      grouped[courseTitle] = 0;
+      grouped[courseTitle] = { totalRevenue: 0, students: 0 };
     }
-    grouped[courseTitle] += purchase.course.price!;
+    grouped[courseTitle].totalRevenue += purchase.course.price ?? 0;
+    grouped[courseTitle].students += 1;
   });
 
   return grouped;
@@ -32,10 +33,11 @@ export const getAnalytics = async (userId: string) => {
       }
     });
 
-    const groupedEarnings = groupByCourse(purchases);
-    const data = Object.entries(groupedEarnings).map(([courseTitle, total]) => ({
+    const groupedData = groupByCourse(purchases);
+    const data = Object.entries(groupedData).map(([courseTitle, { totalRevenue, students }]) => ({
       name: courseTitle,
-      total: total,
+      total: totalRevenue,
+      students,
     }));
 
     const totalRevenue = data.reduce((acc, curr) => acc + curr.total, 0);
@@ -45,13 +47,13 @@ export const getAnalytics = async (userId: string) => {
       data,
       totalRevenue,
       totalSales,
-    }
+    };
   } catch (error) {
-    console.log("[GET_ANALYTICS]", error);
+    console.error("[GET_ANALYTICS ERROR]", error);
     return {
       data: [],
       totalRevenue: 0,
       totalSales: 0,
-    }
+    };
   }
-}
+};

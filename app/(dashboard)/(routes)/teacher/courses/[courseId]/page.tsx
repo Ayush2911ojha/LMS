@@ -13,6 +13,7 @@ import ChaptersForm from './_components/chapter-form';
 import { Banner } from '@/components/banner';
 import { Actions } from './_components/actions';
 import { AttachmentForm } from './_components/attachment-for';
+import {QuizForm} from './_components/quiz-form';
 
 const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
   const { userId } = auth();
@@ -135,6 +136,14 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
                 </div>
                 <AttachmentForm initialData={course} courseId={course.id} />
               </div>
+              <div className="bg-white p-4 rounded-lg shadow-md">
+  <div className="flex items-center gap-x-2">
+    <IconBadge icon={File} />
+    <h2 className="text-2xl font-semibold text-gray-800">Course Quiz</h2>
+  </div>
+  <QuizForm courseId={course.id} />
+</div>
+
             </div>
           </div>
         </div>

@@ -2,9 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
-import { Fleur_De_Leah } from "next/font/google";
+
 import { usePathname, useRouter } from "next/navigation";
-import path from "path";
+
 
 
 interface SidebarItemProps { 

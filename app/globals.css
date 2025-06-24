@@ -85,6 +85,17 @@ body,
 .ql-container {
   font-size: 1rem !important; /* Adjust to a responsive size */
 }
+/* custom-scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
+}
 
 /* Any additional specific component adjustments can go here */
 

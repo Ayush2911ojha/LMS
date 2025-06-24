@@ -47,6 +47,7 @@ model Course {
   @@index([categoryId])
   @@fulltext([title])
   
+  QuizQuestion QuizQuestion[]
 }
 
 model Attachment {
@@ -62,6 +63,52 @@ model Attachment {
 
   @@index([courseId])
 }
+model QuizQuestion {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  courseId      String   @db.ObjectId
+  question      String
+  options       String[]
+  correctOption String
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+}
+model Todo {
+  id        String   @id @map("_id") @db.ObjectId 
+  userId    String
+  task      String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+model Reminder {
+  id        String   @id @map("_id") @db.ObjectId
+  userId    String
+  title     String
+  note      String?
+  date      String   // "YYYY-MM-DD"
+  createdAt DateTime @default(now())
+}
+model ForumPost {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  title     String
+  content   String
+  type      PostType
+  createdAt DateTime @default(now())
+}
+
+enum PostType {
+  Blog
+  Question
+  Announcement
+}
+
+
+
 
 model Category {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId

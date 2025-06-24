@@ -13,15 +13,17 @@ export const DataCard = ({
     shouldFormat = true,
 }: DataCardProps) => {
     return (
-        <Card className="shadow-md transition-transform transform hover:scale-105 hover:shadow-xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-lg font-semibold text-gray-700">{label}</CardTitle>
+        <Card className="bg-gradient-to-r from-white via-blue-50 to-white shadow-lg border border-blue-100 rounded-2xl hover:shadow-2xl transform hover:-translate-y-1 transition duration-300 ease-in-out">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-base font-medium text-gray-600 tracking-wide uppercase">
+                    {label}
+                </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="text-3xl font-bold text-blue-600">
+                <div className="text-4xl font-extrabold text-blue-700 drop-shadow-sm">
                     {shouldFormat ? formatPrice(value) : value}
                 </div>
             </CardContent>
         </Card>
     );
-}
+};
