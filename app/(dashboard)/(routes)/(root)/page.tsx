@@ -59,8 +59,8 @@ const totalCourses = coursesInProgress.length;
         <div className="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
           <BadgeCheck className="text-indigo-600 w-10 h-10" />
           <div>
-            <p className="text-md font-medium">You've enrolled in {totalCourses} courses</p>
-            <p className="text-sm text-gray-500">Keep up the great progress!</p>
+           <p className="text-md font-medium">{`You've enrolled in ${totalCourses} courses`}</p>
+
           </div>
         </div>
       </div>
