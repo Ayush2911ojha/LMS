@@ -3,6 +3,17 @@
 import { useState } from "react";
 
 import html2pdf from "html2pdf.js";
+async function loadMammothFromCDN() {
+  if (typeof window !== "undefined" && !(window as any).mammoth) {
+    await new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/mammoth/mammoth.browser.min.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => reject("Failed to load mammoth");
+      document.body.appendChild(script);
+    });
+  }
+}
 
 export default function FileToPdf() {
   const [files, setFiles] = useState<File[]>([]);
@@ -16,7 +27,7 @@ export default function FileToPdf() {
     }
   };
 
-  const generateContent = async () => {
+const generateContent = async () => {
   try {
     const container = document.createElement("div");
     container.style.width = "100%";
@@ -45,18 +56,15 @@ export default function FileToPdf() {
         try {
           const arrayBuffer = await file.arrayBuffer();
 
-          // ✅ Only load `mammoth` dynamically on client-side
-          if (typeof window !== "undefined") {
-            const mammoth = await import("mammoth/mammoth.browser.min").then(mod => mod as any);
-            const result = await mammoth.convertToHtml({ arrayBuffer });
+          await loadMammothFromCDN(); // Load via CDN
+          const result = await (window as any).mammoth.convertToHtml({ arrayBuffer });
 
-            const docDiv = document.createElement("div");
-            docDiv.innerHTML = result.value;
-            docDiv.style.margin = "20px";
-            docDiv.style.lineHeight = "1.6";
-            docDiv.style.fontSize = "16px";
-            container.appendChild(docDiv);
-          }
+          const docDiv = document.createElement("div");
+          docDiv.innerHTML = result.value;
+          docDiv.style.margin = "20px";
+          docDiv.style.lineHeight = "1.6";
+          docDiv.style.fontSize = "16px";
+          container.appendChild(docDiv);
         } catch (err) {
           console.error(`Error processing DOCX ${file.name}:`, err);
           const para = document.createElement("p");
