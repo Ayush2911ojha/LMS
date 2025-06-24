@@ -7,9 +7,10 @@ export default function FileToPdf() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
       <div className="max-w-xl text-center">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">📁 File to PDF Converter</h1>
-        <p className="text-lg text-gray-600 mb-6">
-          This feature is currently under construction. We'll launch it soon!
-        </p>
+       <p className="text-lg text-gray-600 mb-6">
+  This feature is currently under construction. We&apos;ll launch it soon!
+</p>
+
         <p className="text-sm text-gray-400">
           Meanwhile, feel free to explore other tools and sections of the site.
         </p>
