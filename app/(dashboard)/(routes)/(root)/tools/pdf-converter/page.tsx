@@ -17,76 +17,82 @@ export default function FileToPdf() {
   };
 
   const generateContent = async () => {
-    try {
-      const container = document.createElement("div");
-      container.style.width = "100%";
-      container.style.backgroundColor = "#fff";
-      container.style.padding = "20px";
-      container.style.fontFamily = "Arial, sans-serif";
-      container.style.boxSizing = "border-box";
+  try {
+    const container = document.createElement("div");
+    container.style.width = "100%";
+    container.style.backgroundColor = "#fff";
+    container.style.padding = "20px";
+    container.style.fontFamily = "Arial, sans-serif";
+    container.style.boxSizing = "border-box";
 
-      for (const file of files) {
-        const ext = file.name.split(".").pop()?.toLowerCase();
+    for (const file of files) {
+      const ext = file.name.split(".").pop()?.toLowerCase();
 
-        if (ext?.match(/jpg|jpeg|png|webp|gif/)) {
-          const img = document.createElement("img");
-          const url = URL.createObjectURL(file);
-          img.src = url;
-          img.style.width = "100%";
-          img.style.maxWidth = "100%";
-          img.style.marginBottom = "20px";
-          img.style.borderRadius = "8px";
-          await new Promise((resolve, reject) => {
-            img.onload = resolve;
-            img.onerror = () => reject(new Error(`Failed to load image: ${file.name}`));
-          });
-          container.appendChild(img);
-        } else if (ext === "docx") {
-          try {
-            const arrayBuffer = await file.arrayBuffer();
-            const mammoth = await import("mammoth/mammoth.browser.min");
+      if (ext?.match(/jpg|jpeg|png|webp|gif/)) {
+        const img = document.createElement("img");
+        const url = URL.createObjectURL(file);
+        img.src = url;
+        img.style.width = "100%";
+        img.style.maxWidth = "100%";
+        img.style.marginBottom = "20px";
+        img.style.borderRadius = "8px";
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = () => reject(new Error(`Failed to load image: ${file.name}`));
+        });
+        container.appendChild(img);
+      } else if (ext === "docx") {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+
+          // ✅ Only load `mammoth` dynamically on client-side
+          if (typeof window !== "undefined") {
+            const mammoth = await import("mammoth/mammoth.browser.min").then(mod => mod as any);
             const result = await mammoth.convertToHtml({ arrayBuffer });
+
             const docDiv = document.createElement("div");
             docDiv.innerHTML = result.value;
             docDiv.style.margin = "20px";
             docDiv.style.lineHeight = "1.6";
             docDiv.style.fontSize = "16px";
             container.appendChild(docDiv);
-          } catch (err) {
-            console.error(`Error processing DOCX ${file.name}:`, err);
-            const para = document.createElement("p");
-            para.innerText = `⚠️ Error processing ${file.name}: ${
-              typeof err === "object" && err !== null && "message" in err
-                ? (err as { message?: string }).message
-                : "Unknown error"
-            }`;
-            para.style.margin = "20px";
-            para.style.color = "#e53e3e";
-            container.appendChild(para);
           }
-        } else {
+        } catch (err) {
+          console.error(`Error processing DOCX ${file.name}:`, err);
           const para = document.createElement("p");
-          para.innerText = `📄 ${file.name} (Preview not supported)`;
+          para.innerText = `⚠️ Error processing ${file.name}: ${
+            typeof err === "object" && err !== null && "message" in err
+              ? (err as { message?: string }).message
+              : "Unknown error"
+          }`;
           para.style.margin = "20px";
-          para.style.fontSize = "18px";
-          para.style.color = "#555";
+          para.style.color = "#e53e3e";
           container.appendChild(para);
         }
+      } else {
+        const para = document.createElement("p");
+        para.innerText = `📄 ${file.name} (Preview not supported)`;
+        para.style.margin = "20px";
+        para.style.fontSize = "18px";
+        para.style.color = "#555";
+        container.appendChild(para);
       }
-
-      return container;
-    } catch (err) {
-      console.error("Error generating content:", err);
-      setError(
-        `Failed to generate content: ${
-          typeof err === "object" && err !== null && "message" in err
-            ? (err as { message?: string }).message
-            : "Unknown error"
-        }`
-      );
-      return null;
     }
-  };
+
+    return container;
+  } catch (err) {
+    console.error("Error generating content:", err);
+    setError(
+      `Failed to generate content: ${
+        typeof err === "object" && err !== null && "message" in err
+          ? (err as { message?: string }).message
+          : "Unknown error"
+      }`
+    );
+    return null;
+  }
+};
+
 
   const generatePDF = async () => {
     setLoading(true);
