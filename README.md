@@ -38,8 +38,8 @@ This is a full-stack Learning Management System (LMS) built with **Next.js 13**,
 ### 🛠️ Setup Instructions
 
 ```bash
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/Ayush2911ojha/LMS.git
+cd LMS
 npm install
 Create a .env.local file with your environment variables:
 
