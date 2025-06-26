@@ -14,7 +14,7 @@ This is a full-stack Learning Management System (LMS) built with **Next.js 13**,
 - 🔒 Clerk authentication
 - 🧠 AI-based chatbot for query assistance
 - 🎨 Responsive UI with Tailwind CSS
-- 🌐 Fully deployed (coming soon)
+- 🌐 Fully deployed
 
 ---
 ## 🌐 Live Demo
