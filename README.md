@@ -14,10 +14,14 @@ This is a full-stack Learning Management System (LMS) built with **Next.js 13**,
 - 🔒 Clerk authentication
 - 🧠 AI-based chatbot for query assistance
 - 🎨 Responsive UI with Tailwind CSS
-- 🌐 Fully deployed (coming soon)
+- 🌐 Fully deployed
 
 ---
+## 🌐 Live Demo
 
+🔗 [https://lms-s8x4.vercel.app](https://lms-s8x4.vercel.app)
+
+---
 ### 🧩 Tech Stack
 
 | Category       | Tech Used                     |
@@ -34,8 +38,8 @@ This is a full-stack Learning Management System (LMS) built with **Next.js 13**,
 ### 🛠️ Setup Instructions
 
 ```bash
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/Ayush2911ojha/LMS.git
+cd LMS
 npm install
 Create a .env.local file with your environment variables:
 
