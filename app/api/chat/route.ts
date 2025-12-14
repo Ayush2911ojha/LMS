@@ -1,147 +1,185 @@
+// app/api/chatbot/route.ts
 import { NextResponse } from "next/server";
+import { getCourses } from "@/actions/get-courses"; 
 
-// Mock LMS data (replace with your actual course details if needed)
-const lmsData = {
-  courses: [
-    { name: "Python Basics", description: "Learn Python programming fundamentals", duration: "8 weeks" },
-    { name: "Web Development", description: "Build web apps with HTML, CSS, JavaScript", duration: "12 weeks" },
-    { name: "Data Science", description: "Introduction to data analysis with Python", duration: "10 weeks" },
-    { name: "MERN", description: "Introduction to MERN full stack", duration: "10 weeks" },
-    { name: "PhotoGraphy", description: "Introduction to Photography", duration: "10 weeks" },
-    { name: "Fitness", description: "Fit & fine ", duration: "10 weeks" },
-    { name: "Data Structure", description: "Introduction to data structure using java", duration: "10 weeks" },
-    { name: "Accountancy", description: "Introduction to Accounts", duration: "10 weeks" },
-    { name: "Java Programming", description: "Learn Java for backend development", duration: "10 weeks" },
-    { name: "AI Basics", description: "Introduction to artificial intelligence", duration: "6 weeks" },
-  ],
-  helpDocs: {
-    "reset password": "Go to LMS Settings > Account > Reset Password to reset your password.",
-    "submit assignment": "Navigate to the course page, find the assignment, and click 'Submit'.",
-    "access course": "Go to the Dashboard, select 'My Courses', and click on the course name.",
-  },
-};
-
-// Helper to classify query intent (simple keyword-based)
-function classifyIntent(query: string): string {
-  const lowerQuery = query.toLowerCase();
-  // Teacher course idea
-  if (
-    lowerQuery.includes("course idea") ||
-    lowerQuery.includes("suggest course") ||
-    lowerQuery.includes("new course") ||
-    lowerQuery.includes("teacher") ||
-    lowerQuery.includes("create course")
-  ) {
-    return "course_idea";
-  }
-  // Topic overview
-  if (
-    lowerQuery.startsWith("what is ") ||
-    lowerQuery.startsWith("tell me about ") ||
-    lowerQuery.startsWith("explain ") ||
-    lowerQuery.match(/(java|python|mern|photography|fitness|accountancy|ai|data science|data structure)/)
-  ) {
-    return "topic_overview";
-  }
-  if (lowerQuery.includes("course") || lowerQuery.includes("syllabus") || lowerQuery.includes("learn")) {
-    return "course";
-  }
-  if (lowerQuery.includes("password") || lowerQuery.includes("submit") || lowerQuery.includes("access")) {
-    return "lms_help";
-  }
-  return "general";
-}
-
-// Helper to find relevant courses for a topic
-function findRelevantCourses(topic: string) {
-  const lowerTopic = topic.toLowerCase();
-  return lmsData.courses.filter(course =>
-    course.name.toLowerCase().includes(lowerTopic) ||
-    course.description.toLowerCase().includes(lowerTopic)
-  );
-}
+import { auth } from "@clerk/nextjs/server"; 
 
 export async function POST(request: Request) {
   try {
     const { message } = await request.json();
 
-    if (!message) {
+    if (!message || typeof message !== "string") {
       return NextResponse.json(
-        { error: { message: "Please provide a message" } },
+        { error: { message: "Please provide a valid message" } },
         { status: 400 }
       );
     }
 
-    console.log(`API call made at ${new Date().toISOString()} with message: ${message}`);
+    const { userId } = auth(); 
 
-    // Classify query intent
+    if (!userId) {
+      return NextResponse.json(
+        { error: { message: "Unauthorized" } },
+        { status: 401 }
+      );
+    }
+
+    const courses = await getCourses({
+      userId,
+    });
+
+   
+   const formattedCourses = courses.map((course) => ({
+  id: course.id,
+  title: course.title,
+  description: course.description || "No description available.",
+  category: course.category?.name || "Uncategorized",
+  chapterCount: course.chapters.length,
+  progress: course.progress !== null ? `${course.progress.toFixed(0)}%` : "Not started",
+  isPurchased: course.progress !== null,
+  price: typeof course.price === "number" ? course.price : 0,
+  priceLabel: typeof course.price === "number" && course.price > 0
+    ? `₹${course.price}`
+    : "Free"
+}));
+
+
+    // Improved intent classification using real course titles
+    const classifyIntent = (query: string): string => {
+      const lowerQuery = query.toLowerCase();
+
+      // Course idea for teachers
+      if (/(course idea|suggest course|new course|create course|teacher)/i.test(lowerQuery)) {
+        return "course_idea";
+      }
+
+      // Topic overview
+      if (/^(what is|tell me about|explain)/i.test(lowerQuery)) {
+        return "topic_overview";
+      }
+
+      // Specific course inquiry
+      const matchedCourse = formattedCourses.find(
+        (c) => c.title.toLowerCase().includes(lowerQuery) || lowerQuery.includes(c.title.toLowerCase())
+      );
+      if (matchedCourse || /course|syllabus|learn|chapter|progress/i.test(lowerQuery)) {
+        return "course_inquiry";
+      }
+
+      // LMS navigation help
+      if (/(password|login|submit|assignment|access|dashboard|profile)/i.test(lowerQuery)) {
+        return "lms_help";
+      }
+
+      return "general";
+    };
+
     const intent = classifyIntent(message);
 
-    // Craft prompt based on intent
+    // Extract potential topic
+    let topic = message;
+    const topicMatch = message.match(/(?:what is|about|explain)\s+(.+)/i);
+    if (topicMatch) topic = topicMatch[1].trim();
+
+    // Find relevant courses
+    const relevantCourses = formattedCourses.filter(
+      (course) =>
+        course.title.toLowerCase().includes(topic.toLowerCase()) ||
+        course.description.toLowerCase().includes(topic.toLowerCase()) ||
+        course.category.toLowerCase().includes(topic.toLowerCase())
+    
+    );
+
+   const coursesToUse = (
+  relevantCourses.length > 0 ? relevantCourses : formattedCourses
+).slice(0, 5);
+
+
     let prompt = "";
+
     switch (intent) {
-      case "course":
+      case "course_inquiry":
         prompt = `
-          You are a chatbot for an LMS platform. Your role is to guide students on course selection and provide course information.
-          Available courses: ${JSON.stringify(lmsData.courses)}.
-          Provide clear and concise guidance based on the query: "${message}"
+You are a friendly and helpful chatbot for an online learning platform (LMS).
+Help the student find or learn about courses based on their query.
+
+Available courses (with progress for this user):
+${JSON.stringify(coursesToUse, null, 2)}
+
+User query: "${message}"
+
+Respond naturally and conversationally. 
+-- Recommend relevant courses with title, description, category, price, chapter count, and progress.
+
+- If they ask about a specific course, give details.
+- Suggest alternatives if no exact match.
+- Encourage enrollment if not purchased.
+Keep response under 200 words.
         `;
         break;
+
+      case "topic_overview":
+        prompt = `
+You are an educational assistant. 
+Give a short, beginner-friendly explanation (2-3 sentences) of the topic: "${topic}"
+
+Then, recommend relevant courses from this list (if any match):
+${JSON.stringify(coursesToUse, null, 2)}
+
+User asked: "${message}"
+        `;
+        break;
+
       case "lms_help":
         prompt = `
-          You are a chatbot for an LMS platform. Use the following help documentation to assist with LMS-related queries:
-          ${JSON.stringify(lmsData.helpDocs)}.
-          Respond concisely to the query: "${message}"
+You are a support chatbot for the LMS platform.
+Common help topics:
+- Reset password: Go to Profile > Settings > Change Password
+- Submit assignment: In course > chapter > assignment section > Upload
+- Access courses: Go to Dashboard > My Courses
+- View progress: On course page or dashboard
+
+Answer the user's question clearly and step-by-step:
+"${message}"
         `;
         break;
-      case "topic_overview": {
-        // Extract topic from message
-        let topic = message;
-        const topicMatch = message.match(/about (.+)$/i) || message.match(/what is (.+)$/i) || message.match(/explain (.+)$/i);
-        if (topicMatch && topicMatch[1]) {
-          topic = topicMatch[1].trim();
-        }
-        const relevantCourses = findRelevantCourses(topic);
-        prompt = `
-          You are a helpful LMS chatbot. Give a brief, beginner-friendly overview of the topic "${topic}" (max 3 sentences).
-          Then, if any relevant courses are available, recommend them from this list: ${JSON.stringify(relevantCourses.length ? relevantCourses : lmsData.courses)}.
-          Query: "${message}"
-        `;
-        break;
-      }
+
       case "course_idea":
         prompt = `
-          You are an LMS assistant for teachers. The teacher is looking for creative new course ideas.
-          Suggest 2-3 innovative course ideas (with a short description for each) that could be added to the LMS platform.
-          Query: "${message}"
+You are an expert curriculum designer helping teachers create new courses.
+Suggest 3 creative, in-demand course ideas (title + short description) that would fit well on this LMS platform.
+Consider current courses to avoid duplication:
+${formattedCourses.map(c => c.title).join(", ")}
+
+User query: "${message}"
         `;
         break;
-      case "general":
+
+      default:
         prompt = `
-          You are a chatbot for an LMS platform. Answer the student's general academic or LMS-related doubt clearly and concisely.
-          If relevant, use this course information for context: ${JSON.stringify(lmsData.courses)}.
-          Query: "${message}"
+You are a helpful chatbot for an online learning platform.
+Use the following course information to assist the student:
+${JSON.stringify(coursesToUse.slice(0, 10), null, 2)}  
+
+Answer clearly and friendly to: "${message}"
         `;
-        break;
+    }
+
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY not set");
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + GEMINI_API_KEY,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: prompt }],
-            },
-          ],
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
           generationConfig: {
-            temperature: intent === "course" || intent === "course_idea" ? 0.8 : 0.7,
-            maxOutputTokens: intent === "lms_help" ? 50 : 150,
+            temperature: intent === "course_idea" ? 0.9 : 0.7,
+            maxOutputTokens: 800,
           },
         }),
       }
@@ -149,18 +187,21 @@ export async function POST(request: Request) {
 
     const data = await response.json();
 
-    if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      return NextResponse.json({ text: data.candidates[0].content.parts[0].text });
-    } else {
-      return NextResponse.json(
-        { error: { message: data.error?.message || "No response from Gemini API" } },
-        { status: response.status }
-      );
+    if (!response.ok) {
+      console.error("Gemini API error:", data);
+      throw new Error(data.error?.message || "LLM API error");
     }
-  } catch (err) {
-    console.error("Error calling Gemini API:", err);
+
+    const text =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Sorry, I couldn't generate a response right now.";
+
+    return NextResponse.json({ text: text.trim() });
+
+  } catch (error: any) {
+    console.error("Chatbot error:", error);
     return NextResponse.json(
-      { error: { message: "Something went wrong. Please try again." } },
+      { error: { message: "Something went wrong. Please try again later." } },
       { status: 500 }
     );
   }

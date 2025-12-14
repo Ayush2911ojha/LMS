@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-
+import Image from "next/image";
 const courses = [
   { id: 1, name: "Mathematics" },
   { id: 2, name: "Physics" },
